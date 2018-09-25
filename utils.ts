@@ -352,7 +352,7 @@ function getTimezoneByValue(value: string): string {
         { key: 'Asia/Bangkok', value: '(GMT+07:00) Bangkok' },
         { key: 'Indian/Christmas', value: '(GMT+07:00) Christmas' },
         { key: 'Antarctica/Davis', value: '(GMT+07:00) Davis' },
-        { key: 'Asia/Saigon" selected="', value: '(GMT+07:00) Hanoi' },
+        { key: 'Asia/Saigon', value: '(GMT+07:00) Hanoi' },
         { key: 'Asia/Hovd', value: '(GMT+07:00) Hovd' },
         { key: 'Asia/Jakarta', value: '(GMT+07:00) Jakarta' },
         { key: 'Asia/Krasnoyarsk', value: '(GMT+07:00) Moscow+04 - Krasnoyarsk' },
