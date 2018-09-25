@@ -24,6 +24,7 @@ export function readEntryByRow(row: number): SchedulerEntry | null {
     try {
         let sheet = SpreadsheetApp.getActive().getSheetByName(SchedulerAddress.Sheet);
         let entry = new SchedulerEntry();
+        entry.RowNo = row;
         entry.To = sheet.getRange(`${SchedulerAddress.To}${row}`).getValue().toString();
         entry.Subject = sheet.getRange(`${SchedulerAddress.Subject}${row}`).getValue().toString();
         entry.Message = sheet.getRange(`${SchedulerAddress.Message}${row}`).getValue().toString();

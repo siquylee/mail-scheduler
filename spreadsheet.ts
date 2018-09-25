@@ -105,9 +105,11 @@ function onScheduleExecuted(e: any): void {
     Logger.log(`Trigger ${uid} executed. Uid ${uid}`);
     let entry = readEntry(uid);
     if (entry) {
+        let status: string = '';
         try {
             MailApp.sendEmail(entry.To, entry.Subject, entry.Message, { htmlBody: entry.Message });
             Logger.log(`Mail '${entry.Subject}' sent to ${entry.To} successfully.`);
+            status = 'OK';
             if (entry.Mode == Recurrence.None) {
                 var triggers = ScriptApp.getProjectTriggers();
                 triggers.forEach(trigger => {
@@ -117,6 +119,12 @@ function onScheduleExecuted(e: any): void {
             }
         } catch (err) {
             Logger.log(err);
+            status = `Error: ${err}`;
+        }
+        finally {
+            // Write data back to status
+            let sheet = SpreadsheetApp.getActive().getSheetByName(SchedulerAddress.Sheet);
+            sheet.getRange(`${SchedulerAddress.Execution}${entry.RowNo}`).setValue(status);
         }
     }
     else {

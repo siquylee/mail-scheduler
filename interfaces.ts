@@ -2,6 +2,7 @@ export enum Recurrence { None, Daily, Weekly, Monthly, Custom };
 
 export class SchedulerEntry {
     constructor() {
+        this.RowNo = 0;
         this.Uid = '';
         this.To = '';
         this.Subject = '';
@@ -11,6 +12,7 @@ export class SchedulerEntry {
         this.Minute = 0;
     }
 
+    public RowNo: number;
     public Uid: string;
     public To: string;
     public Subject: string;
@@ -22,6 +24,7 @@ export class SchedulerEntry {
     public Minute: number;
     public Day?: number;
     public SentOnDate?: Date;
+    public Execution?: string;
 }
 
 export class SchedulerAddress {
@@ -37,4 +40,5 @@ export class SchedulerAddress {
     public static readonly Day = 'I';
     public static readonly Timzone = 'J';
     public static readonly Uid = 'K';
+    public static readonly Execution = 'L';
 }
