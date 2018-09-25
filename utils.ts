@@ -1,4 +1,5 @@
 import { SchedulerAddress, SchedulerEntry, Recurrence } from "./interfaces";
+import { l } from "./localization";
 
 export function readEntry(uid: string): SchedulerEntry | null {
     try {
@@ -26,49 +27,35 @@ export function readEntryByRow(row: number): SchedulerEntry | null {
         entry.To = sheet.getRange(`${SchedulerAddress.To}${row}`).getValue().toString();
         entry.Subject = sheet.getRange(`${SchedulerAddress.Subject}${row}`).getValue().toString();
         entry.Message = sheet.getRange(`${SchedulerAddress.Message}${row}`).getValue().toString();
-        let mode = sheet.getRange(`${SchedulerAddress.Mode}${row}`).getValue().toString();
-        switch (mode) {
-            case 'None':
-                entry.Mode = Recurrence.None;
-                break;
-            case 'Daily':
-                entry.Mode = Recurrence.Daily;
-                break;
-            case 'Weekly':
-                entry.Mode = Recurrence.Weekly;
-                break;
-            case 'Monthly':
-                entry.Mode = Recurrence.Monthly;
-                break;
-            case 'Custom':
-                entry.Mode = Recurrence.Custom;
-                break;
-        }
 
-        let day = sheet.getRange(`${SchedulerAddress.Weekdays}${row}`).getValue().toString()
-        switch (day.trim().toUpperCase()) {
-            case 'MONDAY':
-                entry.Weekday = ScriptApp.WeekDay.MONDAY;
-                break;
-            case 'TUESDAY':
-                entry.Weekday = ScriptApp.WeekDay.TUESDAY;
-                break;
-            case 'WEDNESDAY':
-                entry.Weekday = ScriptApp.WeekDay.WEDNESDAY;
-                break;
-            case 'THURSDAY':
-                entry.Weekday = ScriptApp.WeekDay.THURSDAY;
-                break;
-            case 'FRIDAY':
-                entry.Weekday = ScriptApp.WeekDay.FRIDAY;
-                break;
-            case 'SATURDAY':
-                entry.Weekday = ScriptApp.WeekDay.SATURDAY;
-                break;
-            case 'SUNDAY':
-                entry.Weekday = ScriptApp.WeekDay.SUNDAY;
-                break;
-        }
+        let mode = sheet.getRange(`${SchedulerAddress.Mode}${row}`).getValue().toString().trim();
+        if (l('recurrence.None').trim() == mode)
+            entry.Mode = Recurrence.None;
+        else if (l('recurrence.Daily').trim() == mode)
+            entry.Mode = Recurrence.Daily;
+        else if (l('recurrence.Weekly').trim() == mode)
+            entry.Mode = Recurrence.Weekly;
+        else if (l('recurrence.Monthly').trim() == mode)
+            entry.Mode = Recurrence.Monthly;
+        else
+            entry.Mode = Recurrence.Custom;
+
+        let day = sheet.getRange(`${SchedulerAddress.Weekdays}${row}`).getValue().toString().trim().toUpperCase();
+        if (l('weekDay.Monday').trim().toUpperCase() == day)
+            entry.Weekday = ScriptApp.WeekDay.MONDAY;
+        else if (l('weekDay.Tuesday').trim().toUpperCase() == day)
+            entry.Weekday = ScriptApp.WeekDay.TUESDAY;
+        else if (l('weekDay.Wednesday').trim().toUpperCase() == day)
+            entry.Weekday = ScriptApp.WeekDay.WEDNESDAY;
+        else if (l('weekDay.Thursday').trim().toUpperCase() == day)
+            entry.Weekday = ScriptApp.WeekDay.THURSDAY;
+        else if (l('weekDay.Friday').trim().toUpperCase() == day)
+            entry.Weekday = ScriptApp.WeekDay.FRIDAY;
+        else if (l('weekDay.Saturday').trim().toUpperCase() == day)
+            entry.Weekday = ScriptApp.WeekDay.SATURDAY;
+        else if (l('weekDay.Sunday').trim().toUpperCase() == day)
+            entry.Weekday = ScriptApp.WeekDay.SUNDAY;
+
         let time = new Date(sheet.getRange(`${SchedulerAddress.SentOnTime}${row}`).getValue().toString());
         entry.Hour = time.getHours();
         entry.Minute = time.getMinutes();

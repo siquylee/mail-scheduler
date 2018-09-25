@@ -1,13 +1,14 @@
 import { SchedulerAddress, Recurrence } from "./interfaces";
 import { createTrigger, readEntry, readEntryByRow } from "./utils";
+import { l } from "./localization";
 
 function onOpen(e: any) {
     try {
         var spreadsheet = SpreadsheetApp.getActive();
         var menuItems = [
-            { name: 'Install script', functionName: 'installScript' },
+            { name: l('installScript'), functionName: 'installScript' },
         ];
-        spreadsheet.addMenu('Mail Scheduler', menuItems);
+        spreadsheet.addMenu(l('scriptName'), menuItems);
     }
     catch (err) {
         Browser.msgBox(err);
@@ -21,9 +22,9 @@ function installScript(): void {
         installCleanupTrigger();
         let authInfo = ScriptApp.getAuthorizationInfo(ScriptApp.AuthMode.FULL);
         if (authInfo.getAuthorizationStatus() === ScriptApp.AuthorizationStatus.REQUIRED)
-            Browser.msgBox('Could not install the script. Please try again!');
+            Browser.msgBox(l('installFailure'));
         else
-            Browser.msgBox('Script installed successfully');
+            Browser.msgBox(l('installSuccess'));
     }
     catch (err) {
         Browser.msgBox(err);
