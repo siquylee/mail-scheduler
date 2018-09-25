@@ -1,3 +1,4 @@
+**Gmail Toolbox: Auto send scheduled emails and recurring emails using Google Spreadsheet & Forms.** 
 
 # Features
 - Set a future send date for your emails.
