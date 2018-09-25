@@ -1,13 +1,14 @@
-import { SchedulerEntry, SchedulerAddress, Recurrence } from "./Interfaces";
-import { createTrigger } from "./Utils";
+import { SchedulerAddress, Recurrence } from "./interfaces";
+import { createTrigger, readEntry, readEntryByRow } from "./utils";
+import { l } from "./localization";
 
 function onOpen(e: any) {
     try {
         var spreadsheet = SpreadsheetApp.getActive();
         var menuItems = [
-            { name: 'Install script', functionName: 'installScript' },
+            { name: l('installScript'), functionName: 'installScript' },
         ];
-        spreadsheet.addMenu('Mail Scheduler', menuItems);
+        spreadsheet.addMenu(l('scriptName'), menuItems);
     }
     catch (err) {
         Browser.msgBox(err);
@@ -21,9 +22,9 @@ function installScript(): void {
         installCleanupTrigger();
         let authInfo = ScriptApp.getAuthorizationInfo(ScriptApp.AuthMode.FULL);
         if (authInfo.getAuthorizationStatus() === ScriptApp.AuthorizationStatus.REQUIRED)
-            Browser.msgBox('Could not install the script. Please try again!');
+            Browser.msgBox(l('installFailure'));
         else
-            Browser.msgBox('Script installed successfully');
+            Browser.msgBox(l('installSuccess'));
     }
     catch (err) {
         Browser.msgBox(err);
@@ -104,9 +105,11 @@ function onScheduleExecuted(e: any): void {
     Logger.log(`Trigger ${uid} executed. Uid ${uid}`);
     let entry = readEntry(uid);
     if (entry) {
+        let status: string = '';
         try {
             MailApp.sendEmail(entry.To, entry.Subject, entry.Message, { htmlBody: entry.Message });
             Logger.log(`Mail '${entry.Subject}' sent to ${entry.To} successfully.`);
+            status = 'OK';
             if (entry.Mode == Recurrence.None) {
                 var triggers = ScriptApp.getProjectTriggers();
                 triggers.forEach(trigger => {
@@ -116,93 +119,15 @@ function onScheduleExecuted(e: any): void {
             }
         } catch (err) {
             Logger.log(err);
+            status = `Error: ${err}`;
+        }
+        finally {
+            // Write data back to status
+            let sheet = SpreadsheetApp.getActive().getSheetByName(SchedulerAddress.Sheet);
+            sheet.getRange(`${SchedulerAddress.Execution}${entry.RowNo}`).setValue(status);
         }
     }
     else {
         Logger.log(`Error: Data with ${uid} is invalid`);
-    }
-}
-
-function readEntry(uid: string): SchedulerEntry | null {
-    try {
-        let sheet = SpreadsheetApp.getActive().getSheetByName(SchedulerAddress.Sheet);
-        let colIdx = sheet.getRange(`${SchedulerAddress.Uid}1`).getColumn();
-        let columnValues = sheet.getRange(2, colIdx, sheet.getLastRow()).getValues();
-        for (var i = 0; i < columnValues.length; i++) {
-            if (columnValues[i][0] == uid) {
-                // i + 2 is row index.
-                return readEntryByRow(i + 2);
-            }
-        }
-        return null;
-    }
-    catch (err) {
-        Logger.log(err);
-        return null;
-    }
-}
-
-function readEntryByRow(row: number): SchedulerEntry | null {
-    try {
-        let sheet = SpreadsheetApp.getActive().getSheetByName(SchedulerAddress.Sheet);
-        let entry = new SchedulerEntry();
-        entry.To = sheet.getRange(`${SchedulerAddress.To}${row}`).getValue().toString();
-        entry.Subject = sheet.getRange(`${SchedulerAddress.Subject}${row}`).getValue().toString();
-        entry.Message = sheet.getRange(`${SchedulerAddress.Message}${row}`).getValue().toString();
-        let mode = sheet.getRange(`${SchedulerAddress.Mode}${row}`).getValue().toString();
-        switch (mode) {
-            case 'None':
-                entry.Mode = Recurrence.None;
-                break;
-            case 'Daily':
-                entry.Mode = Recurrence.Daily;
-                break;
-            case 'Weekly':
-                entry.Mode = Recurrence.Weekly;
-                break;
-            case 'Monthly':
-                entry.Mode = Recurrence.Monthly;
-                break;
-            case 'Custom':
-                entry.Mode = Recurrence.Custom;
-                break;
-        }
-
-        let day = sheet.getRange(`${SchedulerAddress.Weekdays}${row}`).getValue().toString()
-        switch (day.trim().toUpperCase()) {
-            case 'MONDAY':
-                entry.Weekday = ScriptApp.WeekDay.MONDAY;
-                break;
-            case 'TUESDAY':
-                entry.Weekday = ScriptApp.WeekDay.TUESDAY;
-                break;
-            case 'WEDNESDAY':
-                entry.Weekday = ScriptApp.WeekDay.WEDNESDAY;
-                break;
-            case 'THURSDAY':
-                entry.Weekday = ScriptApp.WeekDay.THURSDAY;
-                break;
-            case 'FRIDAY':
-                entry.Weekday = ScriptApp.WeekDay.FRIDAY;
-                break;
-            case 'SATURDAY':
-                entry.Weekday = ScriptApp.WeekDay.SATURDAY;
-                break;
-            case 'SUNDAY':
-                entry.Weekday = ScriptApp.WeekDay.SUNDAY;
-                break;
-        }
-        let time = new Date(sheet.getRange(`${SchedulerAddress.SentOnTime}${row}`).getValue().toString());
-        entry.Hour = time.getHours();
-        entry.Minute = time.getMinutes();
-        entry.SentOnDate = new Date(sheet.getRange(`${SchedulerAddress.SentOnDate}${row}`).getValue().toString());
-        entry.Day = parseInt(sheet.getRange(`${SchedulerAddress.Day}${row}`).getValue().toString());
-        entry.Timzone = sheet.getRange(`${SchedulerAddress.Timzone}${row}`).getValue().toString();
-        entry.Uid = sheet.getRange(`${SchedulerAddress.Uid}${row}`).getValue().toString();
-        return entry;
-    }
-    catch (err) {
-        Logger.log(err);
-        return null;
     }
 }
