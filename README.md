@@ -1,4 +1,4 @@
-Mail Scheduler is a set of collection Google Spreadsheet file with embedded Google App Script (GAS) & Google Forms template to schedule Gmail emails. **Mail Scheduler is NOT a web app or browser extension.** If you are familiar with Microsoft Office, you can think Mail Scheduler is Excel macro-enabled workbook.
+Mail Scheduler is a set of collection Google Spreadsheet file with embedded Google Apps Script (GAS) & Google Forms template to schedule Gmail emails. **Mail Scheduler is NOT a web app or browser extension.** If you are familiar with Microsoft Office, you can think Mail Scheduler is Excel macro-enabled workbook.
 
 # Features
 - Set a future send date for your emails.
@@ -19,10 +19,10 @@ Mail Scheduler is a set of collection Google Spreadsheet file with embedded Goog
 
 # Usage
 
-- [Guideline](https://github.com/siquylee/mail-scheduler/wiki)
+- [User Guide](https://github.com/siquylee/mail-scheduler/wiki)
 - [Customization](https://github.com/siquylee/mail-scheduler/wiki/Customization)
-- [FAQ](https://github.com/siquylee/mail-scheduler/wiki/FAQ)
-- [Contributing](https://github.com/siquylee/mail-scheduler/wiki/Contributing)
+- [Frequently Asked Questions](https://github.com/siquylee/mail-scheduler/wiki/Frequently-Asked-Questions)
+- [How to Contribute](https://github.com/siquylee/mail-scheduler/wiki/How-to-Contribute)
 
 ## Limitations
 
