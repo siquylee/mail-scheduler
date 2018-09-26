@@ -1,4 +1,4 @@
-**Gmail Toolbox: Auto send scheduled emails and recurring emails using Google Spreadsheet & Forms.** 
+Mail Scheduler is a set of collection Google Spreadsheet file with embedded Google App Script (GAS) & Google Forms template to schedule Gmail emails. **Mail Scheduler is NOT a web app or browser extension.** If you are familiar with Microsoft Office, you can think Mail Scheduler is Excel macro-enabled workbook.
 
 # Features
 - Set a future send date for your emails.
@@ -7,7 +7,7 @@
 # How It Works
 
 - Google Spreadsheet acts like back-end
-- Google Form plays front-end role
+- Google Forms plays front-end role
 - Google App Script (GAS) does cool things
 
 # Advantages
