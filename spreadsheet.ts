@@ -107,8 +107,12 @@ function onScheduleExecuted(e: any): void {
     if (entry) {
         let status: string = '';
         try {
-            MailApp.sendEmail(entry.To, entry.Subject, entry.Message, { htmlBody: entry.Message });
-            Logger.log(`Mail '${entry.Subject}' sent to ${entry.To} successfully.`);
+            let recipients = entry.UniqueMessage ? entry.To.split(',') : [entry.To];
+            recipients.forEach(to => {
+                MailApp.sendEmail(to, entry!.Subject, entry!.Message, { htmlBody: entry!.Message });
+                Logger.log(`Mail '${entry!.Subject}' sent to ${to} successfully.`);
+            });
+            
             status = 'OK';
             if (entry.Mode == Recurrence.None) {
                 var triggers = ScriptApp.getProjectTriggers();
