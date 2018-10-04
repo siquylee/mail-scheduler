@@ -8,7 +8,7 @@ Mail Scheduler is a set of collection Google Spreadsheet file with embedded Goog
 
 - Google Spreadsheet acts like back-end
 - Google Forms plays front-end role
-- Google App Script (GAS) does cool things
+- Google Apps Script (GAS) does cool things
 
 # Advantages
 
@@ -20,7 +20,6 @@ Mail Scheduler is a set of collection Google Spreadsheet file with embedded Goog
 # Usage
 
 - [User Guide](https://github.com/siquylee/mail-scheduler/wiki)
-- [Customization](https://github.com/siquylee/mail-scheduler/wiki/Customization)
 - [Frequently Asked Questions](https://github.com/siquylee/mail-scheduler/wiki/Frequently-Asked-Questions)
 - [How to Contribute](https://github.com/siquylee/mail-scheduler/wiki/How-to-Contribute)
 

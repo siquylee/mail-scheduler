@@ -64,6 +64,8 @@ export function readEntryByRow(row: number): SchedulerEntry | null {
         entry.Day = parseInt(sheet.getRange(`${SchedulerAddress.Day}${row}`).getValue().toString());
         entry.Timzone = getTimezoneByValue(sheet.getRange(`${SchedulerAddress.Timzone}${row}`).getValue().toString());
         entry.Uid = sheet.getRange(`${SchedulerAddress.Uid}${row}`).getValue().toString();
+        let uniqueMessage = sheet.getRange(`${SchedulerAddress.UniqueMessage}${row}`).getValue().toString().trim().toUpperCase();
+        entry.UniqueMessage = l('uniqueMessage.Yes').trim().toUpperCase() == uniqueMessage;
         return entry;
     }
     catch (err) {

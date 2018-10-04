@@ -10,6 +10,7 @@ export class SchedulerEntry {
         this.Mode = Recurrence.None;
         this.Hour = 0;
         this.Minute = 0;
+        this.UniqueMessage = false;
     }
 
     public RowNo: number;
@@ -25,6 +26,7 @@ export class SchedulerEntry {
     public Day?: number;
     public SentOnDate?: Date;
     public Execution?: string;
+    public UniqueMessage: boolean;
 }
 
 export class SchedulerAddress {
@@ -39,6 +41,7 @@ export class SchedulerAddress {
     public static readonly SentOnDate = 'G';
     public static readonly Day = 'I';
     public static readonly Timzone = 'J';
-    public static readonly Uid = 'K';
-    public static readonly Execution = 'L';
+    public static readonly UniqueMessage = 'K';
+    public static readonly Uid = 'L';
+    public static readonly Execution = 'M';
 }
