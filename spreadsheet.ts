@@ -1,5 +1,5 @@
 import { SchedulerAddress, Recurrence } from "./interfaces";
-import { createTrigger, readEntry, readEntryByRow } from "./utils";
+import { createTrigger, readEntry, readEntryByRow, shouldStart, shouldEnd, getNextRun } from "./utils";
 import { l } from "./localization";
 
 function onOpen(e: any) {
@@ -52,10 +52,10 @@ function installCleanupTrigger(): void {
     var triggers = ScriptApp.getProjectTriggers();
     let found = triggers.filter(trigger => trigger.getHandlerFunction() == initializeHandler).length > 0;
     if (!found) {
-        // Every 3 days, find & delete orphaned triggers
+        // Every day, find & delete orphaned triggers
         ScriptApp.newTrigger(initializeHandler)
             .timeBased()
-            .everyDays(3)
+            .everyDays(1)
             .atHour(1)
             .create();
         Logger.log(`New trigger created with handler ${initializeHandler}`);
@@ -105,25 +105,30 @@ function onScheduleExecuted(e: any): void {
     Logger.log(`Trigger ${uid} executed. Uid ${uid}`);
     let entry = readEntry(uid);
     if (entry) {
+        // Check if we should start sending email
+        if (!shouldStart(entry)) {
+            Logger.log(`Well, not this time. The schedule is ${entry.StartDate}`);
+            return;
+        }
+
+        // Let sending email
         let status: string = '';
+        let nextRun = getNextRun(entry);
         try {
             let recipients = entry.UniqueMessage ? entry.To.split(',') : [entry.To];
             recipients.forEach(to => {
                 MailApp.sendEmail(to, entry!.Subject, entry!.Message, { htmlBody: entry!.Message });
                 Logger.log(`Mail '${entry!.Subject}' sent to ${to} successfully.`);
             });
-            
-            status = 'OK';
-            if (entry.Mode == Recurrence.None) {
-                var triggers = ScriptApp.getProjectTriggers();
-                triggers.forEach(trigger => {
-                    if (uid == trigger.getUniqueId())
-                        ScriptApp.deleteTrigger(trigger);
-                });
+
+            status = `OK. Next run: ${nextRun}`;
+            // Check if we should stop sending email
+            if (shouldEnd(entry)) {
+                // Delete this row
             }
         } catch (err) {
             Logger.log(err);
-            status = `Error: ${err}`;
+            status = `Error: ${err}. Next run: ${nextRun}`;
         }
         finally {
             // Write data back to status

@@ -11,6 +11,7 @@ export class SchedulerEntry {
         this.Hour = 0;
         this.Minute = 0;
         this.UniqueMessage = false;
+        this.NeverExpires = true;
     }
 
     public RowNo: number;
@@ -27,6 +28,9 @@ export class SchedulerEntry {
     public SentOnDate?: Date;
     public Execution?: string;
     public UniqueMessage: boolean;
+    public StartDate?: Date;
+    public EndDate?: Date;
+    public NeverExpires: boolean;
 }
 
 export class SchedulerAddress {
@@ -42,6 +46,9 @@ export class SchedulerAddress {
     public static readonly Day = 'I';
     public static readonly Timzone = 'J';
     public static readonly UniqueMessage = 'K';
-    public static readonly Uid = 'L';
-    public static readonly Execution = 'M';
+    public static readonly StartDate = 'L';
+    public static readonly EndDate = 'M';
+    public static readonly NeverExpires = 'N';
+    public static readonly Uid = 'O';
+    public static readonly Execution = 'P';
 }
