@@ -6,7 +6,7 @@ export function shouldStart(entry: SchedulerEntry): boolean {
     if (entry.Mode != Recurrence.None && entry.StartDate) {
         let current = dayjs();
         let start = dayjs(entry.StartDate);
-        return current.diff(start, 'day') >= 0;
+        return diffDays(current, start) >= 0;
     }
     return true;
 }
@@ -17,7 +17,7 @@ export function shouldEnd(entry: SchedulerEntry): boolean {
         if (entry.EndDate) {
             let current = dayjs();
             let end = dayjs(entry.EndDate);
-            return current.diff(end, 'day') >= 0;
+            return diffDays(current, end) >= 0;
         }
         return entry.NeverExpires;
     }
@@ -26,25 +26,29 @@ export function shouldEnd(entry: SchedulerEntry): boolean {
 
 export function getNextRun(entry: SchedulerEntry): string {
     let nextRun = dayjs();
-    nextRun.set('hour', entry.Hour);
-    nextRun.set('minute', entry.Minute);
+    nextRun = dayjs().set('hour', entry.Hour).set('minute', entry.Minute);
     switch (entry.Mode) {
         case Recurrence.None:
             status = 'Expired';
             break;
         case Recurrence.Daily:
-            nextRun.add(1, 'day');
+            nextRun = nextRun.add(1, 'day');
             break;
         case Recurrence.Weekly:
-            nextRun.add(1, 'week');
+            nextRun = nextRun.add(1, 'week');
             break;
         case Recurrence.Monthly:
-            nextRun.add(1, 'month');
+            nextRun = nextRun.add(1, 'month');
             break;
         default:
             break;
     }
-    return entry.Mode == Recurrence.None ? 'Expired' : nextRun.format('HH:mm dddd, MMMM DD, YYYY');
+
+    if (entry.Mode != Recurrence.None) {
+        let current = dayjs();
+        return diffDays(nextRun, current) > 0 ? nextRun.format('HH:mm dddd, MMMM DD, YYYY') : 'Expired';
+    }
+    return 'Expired';
 }
 
 export function readEntry(uid: string): SchedulerEntry | null {
@@ -179,6 +183,12 @@ export function createTrigger(funcName: string, entry: SchedulerEntry): GoogleAp
             break;
     }
     return trigger;
+}
+
+function diffDays(date1: dayjs.Dayjs, date2: dayjs.Dayjs): number {
+    date1 = date1.set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0);
+    date2 = date2.set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0);
+    return date1.diff(date2, 'day');
 }
 
 function getTimezoneByValue(value: string): string {

@@ -1,5 +1,5 @@
 import { SchedulerAddress, Recurrence } from "./interfaces";
-import { createTrigger, readEntry, readEntryByRow, shouldStart, shouldEnd, getNextRun } from "./utils";
+import { createTrigger, readEntry, readEntryByRow, shouldStart, shouldEnd, getNextRun, deleteTrigger } from "./utils";
 import { l } from "./localization";
 
 function onOpen(e: any) {
@@ -125,6 +125,7 @@ function onScheduleExecuted(e: any): void {
             // Check if we should stop sending email
             if (shouldEnd(entry)) {
                 // Delete this row
+                deleteTrigger(uid);
             }
         } catch (err) {
             Logger.log(err);
