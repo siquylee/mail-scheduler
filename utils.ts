@@ -2,7 +2,7 @@ import { SchedulerAddress, SchedulerEntry, Recurrence } from "./interfaces";
 import { l } from "./localization";
 import dayjs from 'dayjs';
 
-function logTriggers(handler?:string): void {
+function logTriggers(handler?: string): void {
     var triggers = ScriptApp.getProjectTriggers();
     triggers.forEach(trigger => {
         if (handler == trigger.getHandlerFunction()) {
@@ -11,7 +11,7 @@ function logTriggers(handler?:string): void {
     });
 }
 
-function logNextRuns(rows: number[]) {    
+function logNextRuns(rows: number[]) {
     rows.forEach(e => {
         let rec = readEntryByRow(e);
         Logger.log(`${rec!.Uid} Next run: ${getNextRun(rec!)}`);
