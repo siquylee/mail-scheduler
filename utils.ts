@@ -2,6 +2,22 @@ import { SchedulerAddress, SchedulerEntry, Recurrence } from "./interfaces";
 import { l } from "./localization";
 import dayjs from 'dayjs';
 
+function logTriggers(handler?:string): void {
+    var triggers = ScriptApp.getProjectTriggers();
+    triggers.forEach(trigger => {
+        if (handler == trigger.getHandlerFunction()) {
+            Logger.log(trigger.getUniqueId());
+        }
+    });
+}
+
+function logNextRuns(rows: number[]) {    
+    rows.forEach(e => {
+        let rec = readEntryByRow(e);
+        Logger.log(`${rec!.Uid} Next run: ${getNextRun(rec!)}`);
+    })
+}
+
 export function shouldStart(entry: SchedulerEntry): boolean {
     if (entry.Mode != Recurrence.None && entry.StartDate) {
         let current = dayjs();
@@ -19,7 +35,7 @@ export function shouldEnd(entry: SchedulerEntry): boolean {
             let end = dayjs(entry.EndDate);
             return diffDays(current, end) >= 0;
         }
-        return entry.NeverExpires;
+        return !entry.NeverExpires;
     }
     return true;
 }
@@ -45,8 +61,11 @@ export function getNextRun(entry: SchedulerEntry): string {
     }
 
     if (entry.Mode != Recurrence.None) {
-        let current = dayjs();
-        return diffDays(nextRun, current) > 0 ? nextRun.format('HH:mm dddd, MMMM DD, YYYY') : 'Expired';
+        if (entry.EndDate) {
+            let date = dayjs(entry.EndDate);
+            return diffDays(date, nextRun) >= 0 ? nextRun.format('HH:mm dddd, MMMM DD, YYYY') : 'Expired';
+        }
+        return nextRun.format('HH:mm dddd, MMMM DD, YYYY')
     }
     return 'Expired';
 }
