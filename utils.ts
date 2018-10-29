@@ -1,5 +1,74 @@
 import { SchedulerAddress, SchedulerEntry, Recurrence } from "./interfaces";
 import { l } from "./localization";
+import dayjs from 'dayjs';
+
+function logTriggers(handler?: string): void {
+    var triggers = ScriptApp.getProjectTriggers();
+    triggers.forEach(trigger => {
+        if (handler == trigger.getHandlerFunction()) {
+            Logger.log(trigger.getUniqueId());
+        }
+    });
+}
+
+function logNextRuns(rows: number[]) {
+    rows.forEach(e => {
+        let rec = readEntryByRow(e);
+        Logger.log(`${rec!.Uid} Next run: ${getNextRun(rec!)}`);
+    })
+}
+
+export function shouldStart(entry: SchedulerEntry): boolean {
+    if (entry.Mode != Recurrence.None && entry.StartDate) {
+        let current = dayjs();
+        let start = dayjs(entry.StartDate);
+        return diffDays(current, start) >= 0;
+    }
+    return true;
+}
+
+export function shouldEnd(entry: SchedulerEntry): boolean {
+    if (entry.Mode != Recurrence.None) {
+        // EndDate has higher priority than NeverExpires property
+        if (entry.EndDate) {
+            let current = dayjs();
+            let end = dayjs(entry.EndDate);
+            return diffDays(current, end) >= 0;
+        }
+        return !entry.NeverExpires;
+    }
+    return true;
+}
+
+export function getNextRun(entry: SchedulerEntry): string {
+    let nextRun = dayjs();
+    nextRun = dayjs().set('hour', entry.Hour).set('minute', entry.Minute);
+    switch (entry.Mode) {
+        case Recurrence.None:
+            status = 'Expired';
+            break;
+        case Recurrence.Daily:
+            nextRun = nextRun.add(1, 'day');
+            break;
+        case Recurrence.Weekly:
+            nextRun = nextRun.add(1, 'week');
+            break;
+        case Recurrence.Monthly:
+            nextRun = nextRun.add(1, 'month');
+            break;
+        default:
+            break;
+    }
+
+    if (entry.Mode != Recurrence.None) {
+        if (entry.EndDate) {
+            let date = dayjs(entry.EndDate);
+            return diffDays(date, nextRun) >= 0 ? nextRun.format('HH:mm dddd, MMMM DD, YYYY') : 'Expired';
+        }
+        return nextRun.format('HH:mm dddd, MMMM DD, YYYY')
+    }
+    return 'Expired';
+}
 
 export function readEntry(uid: string): SchedulerEntry | null {
     try {
@@ -24,10 +93,16 @@ export function readEntryByRow(row: number): SchedulerEntry | null {
     try {
         let sheet = SpreadsheetApp.getActive().getSheetByName(SchedulerAddress.Sheet);
         let entry = new SchedulerEntry();
+
+        // Required Fields
         entry.RowNo = row;
         entry.To = sheet.getRange(`${SchedulerAddress.To}${row}`).getValue().toString();
         entry.Subject = sheet.getRange(`${SchedulerAddress.Subject}${row}`).getValue().toString();
         entry.Message = sheet.getRange(`${SchedulerAddress.Message}${row}`).getValue().toString();
+
+        let time = new Date(sheet.getRange(`${SchedulerAddress.SentOnTime}${row}`).getValue().toString());
+        entry.Hour = time.getHours();
+        entry.Minute = time.getMinutes();
 
         let mode = sheet.getRange(`${SchedulerAddress.Mode}${row}`).getValue().toString().trim();
         if (l('recurrence.None').trim() == mode)
@@ -41,37 +116,69 @@ export function readEntryByRow(row: number): SchedulerEntry | null {
         else
             entry.Mode = Recurrence.Custom;
 
-        let day = sheet.getRange(`${SchedulerAddress.Weekdays}${row}`).getValue().toString().trim().toUpperCase();
-        if (l('weekDay.Monday').trim().toUpperCase() == day)
-            entry.Weekday = ScriptApp.WeekDay.MONDAY;
-        else if (l('weekDay.Tuesday').trim().toUpperCase() == day)
-            entry.Weekday = ScriptApp.WeekDay.TUESDAY;
-        else if (l('weekDay.Wednesday').trim().toUpperCase() == day)
-            entry.Weekday = ScriptApp.WeekDay.WEDNESDAY;
-        else if (l('weekDay.Thursday').trim().toUpperCase() == day)
-            entry.Weekday = ScriptApp.WeekDay.THURSDAY;
-        else if (l('weekDay.Friday').trim().toUpperCase() == day)
-            entry.Weekday = ScriptApp.WeekDay.FRIDAY;
-        else if (l('weekDay.Saturday').trim().toUpperCase() == day)
-            entry.Weekday = ScriptApp.WeekDay.SATURDAY;
-        else if (l('weekDay.Sunday').trim().toUpperCase() == day)
-            entry.Weekday = ScriptApp.WeekDay.SUNDAY;
+        // Optional Fields
+        let uniqueMessage = sheet.getRange(`${SchedulerAddress.UniqueMessage}${row}`).getValue().toString();
+        entry.UniqueMessage = l('uniqueMessage.Yes').trim().toUpperCase() == uniqueMessage.trim().toUpperCase();
 
-        let time = new Date(sheet.getRange(`${SchedulerAddress.SentOnTime}${row}`).getValue().toString());
-        entry.Hour = time.getHours();
-        entry.Minute = time.getMinutes();
-        entry.SentOnDate = new Date(sheet.getRange(`${SchedulerAddress.SentOnDate}${row}`).getValue().toString());
-        entry.Day = parseInt(sheet.getRange(`${SchedulerAddress.Day}${row}`).getValue().toString());
-        entry.Timzone = getTimezoneByValue(sheet.getRange(`${SchedulerAddress.Timzone}${row}`).getValue().toString());
+        let date = sheet.getRange(`${SchedulerAddress.SentOnDate}${row}`).getValue().toString();
+        if (date)
+            entry.SentOnDate = new Date(date);
+
+        let weekday = sheet.getRange(`${SchedulerAddress.Weekdays}${row}`).getValue().toString();
+        if (weekday) {
+            weekday = weekday.trim().toUpperCase();
+            if (l('weekDay.Monday').trim().toUpperCase() == weekday)
+                entry.Weekday = ScriptApp.WeekDay.MONDAY;
+            else if (l('weekDay.Tuesday').trim().toUpperCase() == weekday)
+                entry.Weekday = ScriptApp.WeekDay.TUESDAY;
+            else if (l('weekDay.Wednesday').trim().toUpperCase() == weekday)
+                entry.Weekday = ScriptApp.WeekDay.WEDNESDAY;
+            else if (l('weekDay.Thursday').trim().toUpperCase() == weekday)
+                entry.Weekday = ScriptApp.WeekDay.THURSDAY;
+            else if (l('weekDay.Friday').trim().toUpperCase() == weekday)
+                entry.Weekday = ScriptApp.WeekDay.FRIDAY;
+            else if (l('weekDay.Saturday').trim().toUpperCase() == weekday)
+                entry.Weekday = ScriptApp.WeekDay.SATURDAY;
+            else if (l('weekDay.Sunday').trim().toUpperCase() == weekday)
+                entry.Weekday = ScriptApp.WeekDay.SUNDAY;
+        }
+
+        let day = sheet.getRange(`${SchedulerAddress.Day}${row}`).getValue().toString();
+        if (day)
+            entry.Day = parseInt(day);
+
+        let timezone = sheet.getRange(`${SchedulerAddress.Timzone}${row}`).getValue().toString();
+        if (timezone)
+            entry.Timzone = getTimezoneByValue(timezone);
+
+        let start = sheet.getRange(`${SchedulerAddress.StartDate}${row}`).getValue().toString();
+        if (start)
+            entry.StartDate = new Date(start);
+
+        let end = sheet.getRange(`${SchedulerAddress.EndDate}${row}`).getValue().toString();
+        if (end)
+            entry.EndDate = new Date(end);
+
+        let neverExpires = sheet.getRange(`${SchedulerAddress.NeverExpires}${row}`).getValue().toString();
+        entry.NeverExpires = l('neverExpires.Yes').trim().toUpperCase() == neverExpires.trim().toUpperCase();
+
         entry.Uid = sheet.getRange(`${SchedulerAddress.Uid}${row}`).getValue().toString();
-        let uniqueMessage = sheet.getRange(`${SchedulerAddress.UniqueMessage}${row}`).getValue().toString().trim().toUpperCase();
-        entry.UniqueMessage = l('uniqueMessage.Yes').trim().toUpperCase() == uniqueMessage;
         return entry;
     }
     catch (err) {
         Logger.log(err);
         return null;
     }
+}
+
+export function deleteTrigger(uid: string): void {
+    var triggers = ScriptApp.getProjectTriggers();
+    triggers.forEach(trigger => {
+        if (uid == trigger.getUniqueId()) {
+            ScriptApp.deleteTrigger(trigger);
+            return;
+        }
+    });
 }
 
 export function createTrigger(funcName: string, entry: SchedulerEntry): GoogleAppsScript.Script.Trigger {
@@ -95,6 +202,12 @@ export function createTrigger(funcName: string, entry: SchedulerEntry): GoogleAp
             break;
     }
     return trigger;
+}
+
+function diffDays(date1: dayjs.Dayjs, date2: dayjs.Dayjs): number {
+    date1 = date1.set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0);
+    date2 = date2.set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0);
+    return date1.diff(date2, 'day');
 }
 
 function getTimezoneByValue(value: string): string {

@@ -3,6 +3,7 @@ Mail Scheduler is a set of collection Google Spreadsheet file with embedded Goog
 # Features
 - Set a future send date for your emails.
 - Choose repeating frequency as daily, weekly, monthly and select a delivery time.
+- Start the recurring emails on a certain day and end on a certain day
 
 # How It Works
 
@@ -26,3 +27,17 @@ Mail Scheduler is a set of collection Google Spreadsheet file with embedded Goog
 ## Limitations
 
 - You could not format message text due to Google Forms input control. The workaround is to copy & paste HTML content to Message field. You might try some HTML editors like [Online HTML Editor](https://html-online.com/editor/)  to compose email content.
+
+# Changelog
+
+## v1.2
+
+- Start the recurring emails on a certain day and end on a certain day
+
+## v1.1
+
+- Send separate mail to each recipient
+
+## v1.0
+
+- First release

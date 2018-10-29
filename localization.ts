@@ -19,4 +19,5 @@ const messages: any = {
     'weekDay.Saturday': 'Saturday',
     'weekDay.Sunday': 'Sunday',
     'uniqueMessage.Yes': 'Yes',
+    'neverExpires.Yes': 'Yes',
 };

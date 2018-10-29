@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "@types/google-apps-script": "0.0.27"
-  }
+    "@types/google-apps-script": "0.0.27",
+    "dayjs": "^1.7.7"
+  },
+  "devDependencies": {}
 }
