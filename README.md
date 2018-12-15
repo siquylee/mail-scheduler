@@ -1,5 +1,10 @@
 Mail Scheduler is a set of collection Google Spreadsheet file with embedded Google Apps Script (GAS) & Google Forms template to schedule Gmail emails. **Mail Scheduler is NOT a web app or browser extension.** If you are familiar with Microsoft Office, you can think Mail Scheduler is Excel macro-enabled workbook.
 
+# Demo
+
+* Create mail scheduler by filling the form at http://bit.ly/ms-form
+* To view data after create scheduler, go to http://bit.ly/ms-sheet
+
 # Features
 - Set a future send date for your emails.
 - Choose repeating frequency as daily, weekly, monthly and select a delivery time.
