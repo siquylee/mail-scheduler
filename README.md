@@ -2,8 +2,8 @@ Mail Scheduler is a set of collection Google Spreadsheet file with embedded Goog
 
 # Demo
 
-* Create mail scheduler by filling the form at http://bit.ly/ms-form
-* To view data after create scheduler, go to http://bit.ly/ms-sheet
+* Create mail scheduler by filling the form at https://rebrand.ly/ms-form
+* To view data after create scheduler, go to https://rebrand.ly/ms-sheet
 
 # Features
 - Set a future send date for your emails.
